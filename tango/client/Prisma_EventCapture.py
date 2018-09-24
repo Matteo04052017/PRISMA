@@ -58,7 +58,7 @@ class Prisma_EventCapture (PyTango.Device_4Impl):
     
     # -------- Add you global variables here --------------------------
     #----- PROTECTED REGION ID(Prisma_EventCapture.global_variables) ENABLED START -----#
-    
+    countTest=0    
     #----- PROTECTED REGION END -----#	//	Prisma_EventCapture.global_variables
 
     def __init__(self, cl, name):
@@ -124,31 +124,11 @@ class Prisma_EventCapture (PyTango.Device_4Impl):
     def EventDetect(self):
         """ 
         """
+        countTest=+1
         self.debug_stream("In EventDetect()")
         #----- PROTECTED REGION ID(Prisma_EventCapture.EventDetect) ENABLED START -----#
-        def getLastFile(p):
-            files = []
-            allfiles = os.listdir(p)
-            # sorted(os.listdir('/prismadata/it01001_20180726/captures') , key = lambda x: getLastFile(x,'/prismadata/it01001_20180726/captures/'))
-            now = datetime.datetime.now()
-            nowMeno10 = now - datetime.timedelta(minutes=10)
-            #print("NOW", now)
-            #print("NOW - 10", nowMeno10)
-            for fl in allfiles:
-
-                dt_format = "%Y%m%dT%H%M%S"
-                date = re.match('it01001_(\S+)', fl).group(1).split('_')
-                dateo = datetime.datetime.strptime(date[0], dt_format)
-                #              print("DATEO",dateo)
-                #              print("NOWMENO10",nowMeno10)
-                if dateo > nowMeno10:
-                    files.append(fl)
-                    print(fl)
-                #else:
-                    # print("SKIPPA")
-                #    pass
-            return files
-        #----- PROTECTED REGION END -----#	//	Prisma_EventCapture.EventDetect
+        
+	#----- PROTECTED REGION END -----#	//	Prisma_EventCapture.EventDetect
         
 
     #----- PROTECTED REGION ID(Prisma_EventCapture.programmer_methods) ENABLED START -----#
@@ -166,19 +146,26 @@ class Prisma_EventCapture (PyTango.Device_4Impl):
             allfiles = os.listdir(eventsdir)
             fileevan = open(file_events_analyzed, 'r')
             allFileEvAn = fileevan.read().split('\n')
-            #print(allFileEvAn)
+            fileevan.close()
+            print(allFileEvAn)
+            print(file_events_analyzed)
             for fl in allfiles:
-                dt_format = "%Y%m%dT%H%M%S"
+                #dt_format = "%Y%m%dT%H%M%S"
 		print("FILE ",fl)
-                if re.match('it01001_', fl):
+                if re.match(myhost, fl):
                 #.group(1)#.split('_')
                     print("DIR",fl)
                     if not fl in allFileEvAn:
                         print("Da Analizzare",fl)
-                        self.attr_NewEvent_read = fl
+                        self.attr_NewEvent_read = fl+' ' +str(countTest)
                         self.push_change_event("NewEvent", fl)
+                        #print("QQQQQQQQQQQQQQQQQ",dd)
+                        with open(file_events_analyzed, 'a') as file:
+                              print("INWITH",file)
+                              file.writelines(fl)
+                              file.close()
                 else:
-                    print("NO PUSH")
+                    print("NO PUSH",fl)
         else:
             print("NON ESISTE")
             f = open(file_events_analyzed, 'a+')
