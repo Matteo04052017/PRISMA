@@ -134,42 +134,43 @@ class Prisma_EventCapture (PyTango.Device_4Impl):
     #----- PROTECTED REGION ID(Prisma_EventCapture.programmer_methods) ENABLED START -----#
         myhost = os.uname()[1]
         today = datetime.date.today()
-        # print(myhost+'_'+ today.strftime('%Y%m%d'))
+        #print(myhost+'_'+ today.strftime('%Y%m%d'))
         dirpath = '/' + myhost + '_' + today.strftime('%Y%m%d') + '/events/'
         #path = self.data_path + dirpath
         eventsdir = self.data_path + dirpath
         file_events_analyzed= eventsdir+self.events_analyzed
-        print(eventsdir)
+        #print(eventsdir)
+	#print(file_events_analyzed)
         if os.path.exists(file_events_analyzed):
-            print("ESISTE")
+            #print("ESISTE")
             #getLastFiles(capturepath)
             allfiles = os.listdir(eventsdir)
+	    print("reading analized file... ",file_events_analyzed)
             fileevan = open(file_events_analyzed, 'r')
             allFileEvAn = fileevan.read().split('\n')
             fileevan.close()
-            print(allFileEvAn)
-            print(file_events_analyzed)
+            print("analized events: ", allFileEvAn)
+            #print(file_events_analyzed)
             for fl in allfiles:
                 #dt_format = "%Y%m%dT%H%M%S"
-		print("FILE ",fl)
+		print("Analizing file...",fl)
                 if re.match(myhost, fl):
-                #.group(1)#.split('_')
-                    print("DIR",fl)
                     if not fl in allFileEvAn:
-                        print("Da Analizzare",fl)
+                        print("push event on file...",fl)
                         self.attr_NewEvent_read = fl+' ' +str(countTest)
                         self.push_change_event("NewEvent", fl)
-                        #print("QQQQQQQQQQQQQQQQQ",dd)
-                        with open(file_events_analyzed, 'a') as file:
-                              print("INWITH",file)
-                              file.writelines(fl)
-                              file.close()
+                        with open(file_events_analyzed, 'a') as file1:
+                              print("writing on analized event the file... ",fl)
+                              file1.write(fl)
+			      file1.write('\n')
+                              file1.close()
+			      print("done.")
                 else:
-                    print("NO PUSH",fl)
+                    print("no match between ",fl, myhost)
         else:
-            print("NON ESISTE")
+            print(file_events_analyzed + " NON ESISTE")
             f = open(file_events_analyzed, 'a+')
-            f.write('# Fiel Events already analyzed')
+            f.write('# File Events already analyzed')
             f.close()
 
 
