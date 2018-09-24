@@ -46,7 +46,7 @@ import PyTango
 import sys
 # Add additional import
 #----- PROTECTED REGION ID(Prisma_EventCoordinator.additionnal_import) ENABLED START -----#
-
+import operator
 #----- PROTECTED REGION END -----#	//	Prisma_EventCoordinator.additionnal_import
 
 # Device States Description
@@ -58,7 +58,8 @@ class Prisma_EventCoordinator (PyTango.Device_4Impl):
     
     # -------- Add you global variables here --------------------------
     #----- PROTECTED REGION ID(Prisma_EventCoordinator.global_variables) ENABLED START -----#
-    
+    nCamera=0 
+    eventTookInCharge=[]
     #----- PROTECTED REGION END -----#	//	Prisma_EventCoordinator.global_variables
 
     def __init__(self, cl, name):
@@ -80,22 +81,37 @@ class Prisma_EventCoordinator (PyTango.Device_4Impl):
         self.get_device_properties(self.get_device_class())
         #----- PROTECTED REGION ID(Prisma_EventCoordinator.init_device) ENABLED START -----#
         db = PyTango.Database()
-        dict = db.get_device_property(self.get_name(), "ManagedDeviceList")
+        # Prendi tutti i device definiti in Prisma_EventCapture
+        class_name = 'Prisma_EventCapture'
+        list_of_devs = ['/'.join((class_name,name)) for name in db.get_instance_name_list(class_name)]
+        listOfDev = []
+        for mydev in list_of_devs:
+            tmp = db.get_device_class_list(mydev)
+            listOfDev.append(tmp[2])
+        print("TEST",listOfDev)
+        #print(self.get_name())
+        #dict = db.get_device_property(self.get_name(), "ManagedDeviceList")
         cameraCount = db.get_device_property(self.get_name(), "CameraCount")
         print(cameraCount)
         timeBetweenEvents = db.get_device_property(self.get_name(), "TimeBetweenEvents")
         print(timeBetweenEvents)
-        dict = db.get_device_property(self.get_name(), "ManagedDeviceList")
-        self.ManagedDeviceList = dict["ManagedDeviceList"]
-        print("DEVICE LIST", self.ManagedDeviceList)
+        #dict = db.get_device_property(self.get_name(), "ManagedDeviceList")
+        #self.ManagedDeviceList = dict["ManagedDeviceList"]
+        #print("DEVICE LIST", self.ManagedDeviceList)
         #dev = PyTango.DeviceProxy('prisma/event/it01001')
         #print(dev.state)
-        for device in self.ManagedDeviceList:
+        for device in listOfDev:  #self.ManagedDeviceList:
             print("DEVICE",device)
             try:
+                print("PROVACI",device)
                 dev = PyTango.DeviceProxy(device)  # .split('\n')[0])
                 print("AAAAAAA")#, dev.state)
-                dev.subscribe_event("NewEvent", PyTango.EventType.CHANGE_EVENT, self.HandleEvent)
+
+                eventoID = dev.subscribe_event("NewEvent", PyTango.EventType.CHANGE_EVENT, self.HandleEvent)
+
+                #eventoID=dev.subscribe_event("NewEvent", PyTango.EventType.CHANGE_EVENT, self.HandleEvent)
+#                self.eventTookInCharge.append({'evId': eventoID,'device':device})
+#               print("AAAAAAA",self.eventTookInCharge)
             except Exception  :
                 print("str(e)")
         #----- PROTECTED REGION END -----#	//	Prisma_EventCoordinator.init_device
@@ -141,12 +157,19 @@ class Prisma_EventCoordinator (PyTango.Device_4Impl):
         #self.ManagedDeviceList = dict["ManagedDeviceList"]
         #print("DEVICE LIST", self.ManagedDeviceList)
 #        print("PPPP")
+#        print(argin)
+        print(self.eventTookInCharge)
         if not argin.attr_value is None:
 #              print("POLLO" ,argin)
-#        print(type(argin))
+              #print(type(argin))
 #              print(argin.attr_value)
-              print("EVENT",argin.attr_value.value)
-              print("DEVICE",argin.device)
+              if argin.attr_value.value != '' :
+                  print("EVENT",argin.attr_value.value)
+                  print("DEVICE",argin.device)
+                  self.nCamera = self.nCamera+1
+                  print(" N. Camere ",self.nCamera)
+                  self.eventTookInCharge.append({'event': argin.attr_value.value,'device': argin.device})
+                  print("\n\n")
     #----- PROTECTED REGION END -----#	//	Prisma_EventCoordinator.programmer_methods
 
 class Prisma_EventCoordinatorClass(PyTango.DeviceClass):
