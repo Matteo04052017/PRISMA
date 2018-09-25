@@ -60,6 +60,16 @@ class Prisma_EventCoordinator (PyTango.Device_4Impl):
     #----- PROTECTED REGION ID(Prisma_EventCoordinator.global_variables) ENABLED START -----#
     nCamera=0 
     eventTookInCharge=[]
+    def getEventInCharge(self,evento):
+        #print("EVENT",argin.attr_value.value)
+        #print("DEVICE",argin.device)
+        #self.nCamera = self.nCamera+1
+        #print(" N. Camere ",self.nCamera)
+        if evento not in self.eventTookInCharge: 
+             self.eventTookInCharge.append(evento) #{'event': argin.attr_value.value,'device': argin.device})
+             self.nCamera = self.nCamera+1
+        print("\n\n")
+
     #----- PROTECTED REGION END -----#	//	Prisma_EventCoordinator.global_variables
 
     def __init__(self, cl, name):
@@ -158,18 +168,20 @@ class Prisma_EventCoordinator (PyTango.Device_4Impl):
         #print("DEVICE LIST", self.ManagedDeviceList)
 #        print("PPPP")
 #        print(argin)
+        print(" Events get in charge")
         print(self.eventTookInCharge)
         if not argin.attr_value is None:
 #              print("POLLO" ,argin)
               #print(type(argin))
 #              print(argin.attr_value)
               if argin.attr_value.value != '' :
-                  print("EVENT",argin.attr_value.value)
-                  print("DEVICE",argin.device)
-                  self.nCamera = self.nCamera+1
+                  self.getEventInCharge({'event': argin.attr_value.value,'device': argin.device})
+                  #print("EVENT",argin.attr_value.value)
+                  #print("DEVICE",argin.device)
+                  #self.nCamera = self.nCamera+1
                   print(" N. Camere ",self.nCamera)
-                  self.eventTookInCharge.append({'event': argin.attr_value.value,'device': argin.device})
-                  print("\n\n")
+                  #self.eventTookInCharge.append({'event': argin.attr_value.value,'device': argin.device})
+                  #print("\n\n")
     #----- PROTECTED REGION END -----#	//	Prisma_EventCoordinator.programmer_methods
 
 class Prisma_EventCoordinatorClass(PyTango.DeviceClass):
