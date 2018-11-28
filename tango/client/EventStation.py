@@ -47,6 +47,7 @@ import sys
 # Add additional import
 #----- PROTECTED REGION ID(EventStation.additionnal_import) ENABLED START -----#
 import random
+from datetime import datetime
 #----- PROTECTED REGION END -----#	//	EventStation.additionnal_import
 
 # Device States Description
@@ -58,6 +59,7 @@ class EventStation (PyTango.Device_4Impl):
     
     # -------- Add you global variables here --------------------------
     #----- PROTECTED REGION ID(EventStation.global_variables) ENABLED START -----#
+    start= datetime.now()
     
     #----- PROTECTED REGION END -----#	//	EventStation.global_variables
 
@@ -81,13 +83,14 @@ class EventStation (PyTango.Device_4Impl):
         self.attr_NewDirectory_read = 0
         self.set_change_event("NewDirectory", True, False)
         #----- PROTECTED REGION ID(EventStation.init_device) ENABLED START -----#
-        
+        print("init_device",str(datetime.now()) )
         #----- PROTECTED REGION END -----#	//	EventStation.init_device
 
     def always_executed_hook(self):
         self.debug_stream("In always_excuted_hook()")
         #----- PROTECTED REGION ID(EventStation.always_executed_hook) ENABLED START -----#
-        
+        print("always_execute",str(datetime.now()),self.attr_NewDirectory_read )   
+#        self.attr_NewDirectory_read = 0
         #----- PROTECTED REGION END -----#	//	EventStation.always_executed_hook
 
     # -------------------------------------------------------------------------
@@ -97,7 +100,16 @@ class EventStation (PyTango.Device_4Impl):
     def read_NewDirectory(self, attr):
         self.debug_stream("In read_NewDirectory()")
         #----- PROTECTED REGION ID(EventStation.NewDirectory_read) ENABLED START -----#
-        attr.set_value(self.attr_NewDirectory_read)
+        print(self.get_name(),"::read_NewDirectory")
+#        print("read_NewDirectory",str(datetime.now()) )
+#        print("read_NewDirectory",self.attr_NewDirectory_read)
+        if self.attr_NewDirectory_read > 60:
+                print("read_NewDirectory MAGGIORE DI 90")
+#                self.push_change_event("NewDirectory",self.attr_NewDirectory_read)
+#                attr.set_value(self.attr_NewDirectory_read)
+        else:
+                #self.attr_NewDirectory_read=0
+                attr.set_value(None)
         
         #----- PROTECTED REGION END -----#	//	EventStation.NewDirectory_read
         
@@ -107,7 +119,8 @@ class EventStation (PyTango.Device_4Impl):
     def read_attr_hardware(self, data):
         self.debug_stream("In read_attr_hardware()")
         #----- PROTECTED REGION ID(EventStation.read_attr_hardware) ENABLED START -----#
-        
+        print("read_attr_hardware",str(datetime.now()) ) 
+#        print(data)
         #----- PROTECTED REGION END -----#	//	EventStation.read_attr_hardware
 
 
@@ -125,12 +138,21 @@ class EventStation (PyTango.Device_4Impl):
         
 
     #----- PROTECTED REGION ID(EventStation.programmer_methods) ENABLED START -----#
-        print("SONO QUI")    
+        tt = datetime.now()
+        delta = tt - self.start
+        print("DELTA",delta.seconds)
+        self.start= tt
+        #print("SONO QUI")    
+#        print("SONO QUI",str(datetime.now()) )
         num=random.randint(1,101)
         print (num)
-        if num > 90 :
-             self.push_data_ready_event("NewDirectory",0) 
-             print("PUSH NewDirectory")
+#        self.attr_NewDirectory_read = num
+        if num > 60 :
+              self.attr_NewDirectory_read = num
+              self.push_change_event("NewDirectory",num) 
+#             print("EventDetectd",str(datetime.now()) )
+#             print("PUSH NewDirectory")
+        
     #----- PROTECTED REGION END -----#	//	EventStation.programmer_methods
 
 class EventStationClass(PyTango.DeviceClass):
