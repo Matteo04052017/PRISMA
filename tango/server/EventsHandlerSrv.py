@@ -76,7 +76,7 @@ class EventsHandlerSrv (PyTango.Device_4Impl):
 
     def init_device(self):
         self.debug_stream("In init_device()")
-        self.get_device_properties(self.get_device_class())
+        self.get_device_properties(self.get_device_class()) 
         #----- PROTECTED REGION ID(EventsHandlerSrv.init_device) ENABLED START -----#
         db = PyTango.Database()
         class_name = 'EventStation'
@@ -91,9 +91,9 @@ class EventsHandlerSrv (PyTango.Device_4Impl):
             try:
                 print("SOTTOSCRIVI")
                 self.dev = PyTango.DeviceProxy(device)
-
-                self.eventoID = self.dev.subscribe_event("NewDirectory", PyTango.EventType.CHANGE_EVENT, self.HandlePushedEvent)#,stateless=
-                print(" Sottoscritto a ",device)
+                eventoID = self.dev.subscribe_event("NewDirectory", PyTango.EventType.CHANGE_EVENT, self.HandlePushedEvent,stateless=True)#
+                #eventoID = self.dev.subscribe_event("NewDirectory", PyTango.EventType.CHANGE_EVENT, self.HandlePushedEvent) #,[],True)#,stateless=
+                print(" Sottoscritto a ",device,eventoID)
             except Exception  :
                 print("str(e)")
         #----- PROTECTED REGION END -----#	//	EventsHandlerSrv.init_device
@@ -160,8 +160,10 @@ class EventsHandlerSrv (PyTango.Device_4Impl):
         
 
     #----- PROTECTED REGION ID(EventsHandlerSrv.programmer_methods) ENABLED START -----#
+        #print(argin)
         if argin.attr_value is not None:
-             print(" Events sent from ",argin.device, " value = ",argin.attr_value.value,"\n") #.value)    
+             if argin.attr_value.value is not None:
+                   print(" Events sent from ",argin.device, " value = ",argin.attr_value.value,"\n") #.value)    
         #self.dev.unsubscribe_event(self.eventoID)
         #self.init_device()
 
