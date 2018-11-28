@@ -22,14 +22,3 @@ new_device_info.server = "EventStation/"+device
 print("Creating device: %s" % new_device_name1)
 new_device_info.name = new_device_name1
 db.add_device(new_device_info)
-"""
-# add the next device
-print("Creating device: %s" % new_device_name2)
-new_device_info_mouse.name = new_device_name2
-db.add_device(new_device_info_mouse)
-
-# add the third device
-print("Creating device: %s" % new_device_name3)
-new_device_info_mouse.name = new_device_name3
-db.add_device(new_device_info_mouse)
-"""
